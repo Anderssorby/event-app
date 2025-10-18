@@ -1,4 +1,4 @@
-use dioxus::prelude::*;
+use dioxus::{fullstack::Transportable, prelude::*};
 
 const ECHO_CSS: Asset = asset!("/assets/styling/echo.css");
 
@@ -6,17 +6,22 @@ const ECHO_CSS: Asset = asset!("/assets/styling/echo.css");
 #[component]
 pub fn Echo() -> Element {
     let mut response = use_signal(|| String::new());
+    let data: String = use_server_future(api::load_data)?().unwrap_or_else(|| Ok("Loading...".into()))?;
 
     rsx! {
         document::Link { rel: "stylesheet", href: ECHO_CSS }
-        div {
-            id: "echo",
+        div { id: "echo",
             h4 { "ServerFn Echo" }
             input {
                 placeholder: "Type here to echo...",
-                oninput:  move |event| async move {
-                    let data = api::echo(event.value()).await.unwrap();
-                    response.set(data);
+                oninput: move |event| async move {
+                    info!("Sending to server: {}", event.value());
+                    match api::echo(event.value()).await {
+                        Err(err) => {
+                            response.set(format!("Error: {}", err));
+                        }
+                        Ok(data) => response.set(data),
+                    }
                 },
             }
 
@@ -26,6 +31,11 @@ pub fn Echo() -> Element {
                     i { "{response}" }
                 }
             }
+        
+        }
+        p {
+            h1 { "Persons in DataBase" }
+            b { "{data}" }
         }
     }
 }

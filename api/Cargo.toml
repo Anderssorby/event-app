@@ -1,7 +1,37 @@
 [package]
 name = "api"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-dioxus = { workspace = true, features = ["fullstack"] }
+anyhow = { workspace = true }
+axum = { workspace = true, optional = true }
+dioxus = { workspace = true, features = ["fullstack", "router"] }
+http = { workspace = true, optional = true }
+serde = { workspace = true, features = ["derive"] }
+surrealdb = { workspace = true, optional = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+    "macros",
+    "rt-multi-thread",
+], optional = true }
+tower = { workspace = true, optional = true }
+dotenv = { workspace = true, optional = true }
+itertools = { workspace = true }
+
+
+[features]
+# The web feature enables the web renderer. Dioxus will automatically enable the feature you define that activates `dioxus/web` when building the client WASM bundle.
+web = ["dioxus/web"]
+# The desktop feature enables the desktop renderer. Dioxus will automatically enable the feature you define that activates `dioxus/desktop` when building the client native bundle.
+desktop = ["dioxus/desktop"]
+# The server feature enables server functions and server-side rendering. Dioxus will automatically enable the feature you define that activates `dioxus/server` when building the server binary.
+server = [
+    "dioxus/server",
+    "axum",
+    "http",
+    "surrealdb",
+    "tokio",
+    "tower",
+    "dotenv",
+]

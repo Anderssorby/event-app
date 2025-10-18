@@ -1,0 +1,37 @@
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use axum::response::Response;
+use axum::Json;
+use thiserror::Error;
+use dioxus::prelude::ServerFnError;
+use dioxus::logger::tracing::{Level, debug, error, info, warn};
+
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("database error")]
+    Db,
+
+    #[error("environment variable error: {0}")]
+    EnvVar(#[from] std::env::VarError),
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(self.to_string())).into_response()
+    }
+}
+
+impl From<surrealdb::Error> for Error {
+    fn from(error: surrealdb::Error) -> Self {
+        error!("{error}");
+        Self::Db
+    }
+}
+
+impl From<Error> for  ServerFnError {
+    fn from(error: Error) -> Self {
+        error!("{error}");
+        ServerFnError::Response("Error in service".to_owned())
+    }
+}

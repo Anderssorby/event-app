@@ -1,13 +1,18 @@
 [package]
 name = "web"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-dioxus = { workspace = true, features = ["router"] }
+dioxus = { workspace = true, features = ["fullstack", "router"] }
 ui = { workspace = true }
+api = { workspace = true }
+tokio = { workspace = true, optional = true, features = ["full"]}
+dotenv = { workspace = true, optional = true }
+axum = { workspace = true, optional = true }
+serde = { workspace = true, features = ["derive"] }
 
 [features]
-default = []
+default = ["web"]
 web = ["dioxus/web"]
-server = ["dioxus/server"]
+server = ["dioxus/server", "api/server", "tokio", "dotenv", "axum"]

@@ -6,3 +6,12 @@ edition = "2021"
 [dependencies]
 dioxus = { workspace = true }
 api = { workspace = true }
+dioxus-primitives = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+dioxus-logger.workspace = true
+
+[features]
+default = []
+server = ["dioxus/server"]
+web = ["time/wasm-bindgen"]

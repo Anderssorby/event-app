@@ -1,3 +1,20 @@
+# Event App
+
+
+## Setting up
+
+Here are some recommendations for setting up the dev environment. 
+It is recommended to install the [Nix](https://nixos.org) package manager and enable the flake feature.
+
+It is recommended to install [Lix](https://lix.systems) variant of nix like so (works for posix systems without nix already):
+```bash
+curl -sSf -L https://install.lix.systems/lix | sh -s -- install
+```
+
+Then install `direnv`. With nix you can simply run `nix shell nixpkgs#direnv` or set it in your system config or home-manager setup. 
+
+Then you can load the necessary components with `nix develop` or automatically `direnv allow`.
+
 # Development
 
 Your new workspace contains a member crate for each of the web, desktop and mobile platforms, a `ui` crate for shared components and a `api` crate for shared backend logic:
