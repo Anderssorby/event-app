@@ -1,21 +1,15 @@
 use crate::error::{Error};
-use crate::models::NewPerson;
+use crate::models::{Event, NewEvent};
 use std::env;
 use surrealdb::Surreal;
 use surrealdb::engine::remote::ws::{Client, Wss};
 use surrealdb::opt::auth::Root;
 use surrealdb::RecordId;
 use serde::{Serialize, Deserialize};
-use axum::extract::{Path, Json};
+use axum::extract::{Path, };
 
 use std::sync::LazyLock;
 static DB: LazyLock<Surreal<Client>> = LazyLock::new(Surreal::init);
-
-#[derive(Serialize, Deserialize)]
-pub struct Person {
-    pub name: String,
-    pub id: RecordId,
-}
 
 pub async fn connect() -> Result<(), Error> {
     let host: String = env::var("SURREAL_HOST")?;
@@ -35,35 +29,36 @@ pub async fn connect() -> Result<(), Error> {
     return Ok(());
 }
 
-const PERSON: &str = "person";
+const EVENT: &str = "event";
 
-pub async fn create_person(
-    id: Path<String>,
-    Json(person): Json<NewPerson>,
-) -> Result<Json<Option<Person>>, Error> {
-    let person = DB.create((PERSON, &*id)).content(person).await?;
-    Ok(Json(person))
+
+pub async fn create_event(
+    id: String,
+    event: NewEvent,
+) -> Result<Event, Error> {
+    let event = DB.create((EVENT, &*id)).content(event).await?;
+    event.ok_or_else(|| Error::Db)
 }
 
-pub async fn read_person(id: Json<String>) -> Result<Json<Option<Person>>, Error> {
-    let person = DB.select((PERSON, &*id)).await?;
-    Ok(Json(person))
+pub async fn get_event(id: String) -> Result<Event, Error> {
+    let event = DB.select((EVENT, &*id)).await?;
+    event.ok_or_else(|| Error::NotFound(format!("Event not found: {}", id)))
 }
 
-pub async fn update_person(
-    id: Path<String>,
-    Json(person): Json<NewPerson>,
-) -> Result<Json<Option<Person>>, Error> {
-    let person = DB.update((PERSON, &*id)).content(person).await?;
-    Ok(Json(person))
+pub async fn update_event(
+    id: String,
+    event: NewEvent,
+) -> Result<Event, Error> {
+    let event = DB.update((EVENT, &*id)).content(event).await?;
+    event.ok_or_else(|| Error::NotFound(format!("Event not found: {}", id)))
 }
 
-pub async fn delete_person(id: String) -> Result<Json<Option<Person>>, Error> {
-    let person = DB.delete((PERSON, &*id)).await?;
-    Ok(Json(person))
+pub async fn delete_event(id: String) -> Result<Event, Error> {
+    let event = DB.delete((EVENT, &*id)).await?;
+    event.ok_or_else(|| Error::NotFound(format!("Event not found: {}", id)))
 }
 
-pub async fn list_people() -> Result<Vec<Person>, Error> {
-    let people = DB.select(PERSON).await?;
-    Ok(people)
+pub async fn list_events() -> Result<Vec<Event>, Error> {
+    let events = DB.select(EVENT).await?;
+    Ok(events)
 }

@@ -1,6 +1,6 @@
 //! This crate contains all shared fullstack server functions.
-use dioxus::{fullstack::Json, prelude::*};
-use itertools::Itertools;
+use dioxus::prelude::*;
+
 
 #[cfg(feature = "server")]
 pub mod db;
@@ -9,16 +9,18 @@ pub mod error;
 
 pub mod models;
 
+pub mod event;
+
 #[server]
-pub async fn load_data() -> Result<String, ServerFnError> {
-    //server::db::connect().await?;
-    let people = db::list_people().await?;
-    Ok(people.into_iter().map(|p|p.name).join(", "))
+pub async fn load_data() -> Result<Vec<models::Event>, ServerFnError> {
+    let events = db::list_events().await?;
+    Ok(events)
 }
 
 /// Echo the user input on the server.
 #[server]
 pub async fn echo(input: String) -> Result<String, ServerFnError> {
-    info!("Echoing back: {}", input);
-    Ok(input.chars().rev().collect::<String>())
+    let reversed = input.chars().rev().collect::<String>();
+    info!("Echoing back: {}", reversed);
+    Ok(reversed)
 }

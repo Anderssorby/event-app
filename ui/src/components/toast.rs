@@ -1,15 +1,10 @@
-use crate::button::Button;
+use crate::components::button::Button;
 
 use dioxus::prelude::*;
 use dioxus_primitives::toast::{self, use_toast, ToastOptions, ToastProviderProps};
 use std::time::Duration;
 
-// #[component]
-// pub fn Toast() -> Element {
-//     rsx! {
-//         ToastProvider { ToastButton {} }
-//     }
-// }
+
 const TOAST_CSS: Asset = asset!("/assets/styling/toast.css");
 #[component]
 pub fn ToastProvider(props: ToastProviderProps) -> Element {

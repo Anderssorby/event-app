@@ -1,10 +1,10 @@
 [package]
 name = "ui"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-dioxus = { workspace = true }
+dioxus = { workspace = true, features = ["fullstack", "router"] }
 api = { workspace = true }
 dioxus-primitives = { workspace = true }
 time = { workspace = true }
@@ -14,4 +14,4 @@ dioxus-logger.workspace = true
 [features]
 default = []
 server = ["dioxus/server"]
-web = ["time/wasm-bindgen"]
+web = ["dioxus/web", "time/wasm-bindgen"]

@@ -1,4 +1,7 @@
-use dioxus::{fullstack::Transportable, prelude::*};
+use std::result::Result;
+
+use api::models::Event;
+use dioxus::prelude::*;
 
 const ECHO_CSS: Asset = asset!("/assets/styling/echo.css");
 
@@ -6,7 +9,8 @@ const ECHO_CSS: Asset = asset!("/assets/styling/echo.css");
 #[component]
 pub fn Echo() -> Element {
     let mut response = use_signal(|| String::new());
-    let data: String = use_server_future(api::load_data)?().unwrap_or_else(|| Ok("Loading...".into()))?;
+    let events: Resource<Result<Vec<Event>, ServerFnError>> =
+        use_server_future(api::load_data)?;
 
     rsx! {
         document::Link { rel: "stylesheet", href: ECHO_CSS }
@@ -15,6 +19,8 @@ pub fn Echo() -> Element {
             input {
                 placeholder: "Type here to echo...",
                 oninput: move |event| async move {
+                    println!("Input changed: {}", event.value());
+                    event.prevent_default();
                     info!("Sending to server: {}", event.value());
                     match api::echo(event.value()).await {
                         Err(err) => {
@@ -25,17 +31,28 @@ pub fn Echo() -> Element {
                 },
             }
 
-            if !response().is_empty() {
+            if !response.read().is_empty() {
                 p {
                     "Server echoed: "
-                    i { "{response}" }
+                    i { "{response.read()}" }
                 }
             }
-        
         }
         p {
-            h1 { "Persons in DataBase" }
-            b { "{data}" }
+            h1 { "Events in DataBase" }
+            div {
+                if let Some(Ok(events)) = &*events.read() {
+                    for event in events {
+                        div { key: "{event.id}",
+                            Link { to: format!("/event/{}", event.id),
+                                "ID: {event.id}, Title: {event.title}, Description: {event.description}"
+                            }
+                        }
+                    }
+                } else {
+                    "Loading events..."
+                }
+            }
         }
     }
 }

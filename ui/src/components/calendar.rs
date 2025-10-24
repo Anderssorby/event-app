@@ -4,7 +4,6 @@ use dioxus_primitives::calendar::{
     CalendarProps, CalendarSelectMonthProps, CalendarSelectYearProps,
 };
 use time::{macros::date, Date, UtcDateTime};
-//use chrono::{Date, Utc, DateTime};
 
 const CSS: Asset = asset!("/assets/styling/calendar.css");
 
@@ -25,7 +24,7 @@ pub fn Calendar() -> Element {
                 tracing::info!("View changed to: {}-{}", new_view.year(), new_view.month());
                 view_date.set(new_view);
             },
-            min_date: date!(1995 - 07 - 21),
+            min_date: date!(1945 - 07 - 21),
             max_date: date!(2035 - 09 - 11),
             CalendarHeader {
                 CalendarNavigation {

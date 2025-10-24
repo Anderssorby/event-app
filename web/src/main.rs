@@ -1,8 +1,8 @@
 use dioxus::{logger::tracing::Level, prelude::*};
 use serde::{Deserialize, Serialize};
 
-use ui::{HistoryNavigation, Navbar, NavbarItem, NavbarNav, NavbarTrigger};
-use views::{Blog, Home};
+use ui::components::{Navbar, NavbarItem, NavbarNav, NavbarContent, NavbarTrigger};
+use views::{Blog, Home, Event};
 
 mod views;
 
@@ -14,6 +14,9 @@ enum Route {
     Home {},
     #[route("/blog/:id")]
     Blog { id: i32 },
+
+    #[route("/event/")]
+    Event,
 }
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
@@ -87,33 +90,27 @@ fn App() -> Element {
 fn WebNavbar() -> Element {
     rsx! {
         Navbar {
-            // The NavbarNav contains the individual menus that can be opened.
-            // NavbarNav {
-            // The index of the menu, used to determine the order in which menus are displayed.
-            // index: 0usize,
-
-            // The menubar trigger is the element that will display the menu when activated.
-            // NavbarTrigger {
-            // The content of the trigger button
-            // {children}
-
-            // }
-            // The menubar content contains all the items that will be displayed in the menu when it is opened.
-            // NavbarContent {
-            //     // Each menubar item represents an individual items in the menu.
-            //     NavbarItem {
-
-            //         // The value of the item which will be passed to the on_select callback when the item is selected.
-            //         value: "",
-            //         on_select: |value: String| {
-            //             // This callback is triggered when the item is selected.
-            //             // The value parameter contains the value of the selected item.
-            //         },
-            //     }
-            // }
-
             NavbarItem { index: 0usize, to: Route::Home {}, value: "home", "Home" }
             NavbarItem { index: 1usize, to: Route::Blog { id: 1 }, value: "blog", "Blog" }
+            // The NavbarNav contains the individual menus that can be opened.
+            NavbarNav {
+                // The index of the menu, used to determine the order in which menus are displayed.
+                index: 2usize,
+
+                // The menubar trigger is the element that will display the menu when activated.
+                NavbarTrigger { "Events" }
+                // The menubar content contains all the items that will be displayed in the menu when it is opened.
+                NavbarContent { class: "navbar-content",
+                    // Each menubar item represents an individual items in the menu.
+                    NavbarItem {
+                        index: 0usize,
+                        to: Route::Event,
+                        // The value of the item which will be passed to the on_select callback when the item is selected.
+                        value: "test",
+                        "Test Event"
+                    }
+                }
+            }
         }
 
         Outlet::<Route> {}

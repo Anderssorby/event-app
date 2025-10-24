@@ -14,6 +14,9 @@ pub enum Error {
 
     #[error("environment variable error: {0}")]
     EnvVar(#[from] std::env::VarError),
+
+    #[error("not found error: {0}")]
+    NotFound(String),
 }
 
 impl IntoResponse for Error {
