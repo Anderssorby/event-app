@@ -1,25 +1,29 @@
-use dioxus::prelude::*;
+use dioxus::{logger::tracing::Level, prelude::*};
+use ui::Route;
 
-use ui::Navbar;
-use views::{Blog, Home};
-
-mod views;
-
-#[derive(Debug, Clone, Routable, PartialEq)]
-#[rustfmt::skip]
-enum Route {
-    #[layout(DesktopNavbar)]
-    #[route("/")]
-    Home {},
-    #[route("/blog/:id")]
-    Blog { id: i32 },
-}
 
 const MAIN_CSS: Asset = asset!("/assets/main.css");
 
 fn main() {
+    dioxus::logger::init(Level::INFO).expect("logger failed to init");
+    #[cfg(feature = "server")]
+    {
+        use dotenv::dotenv;
+        dotenv().ok();
+    }
+    #[cfg(feature = "desktop")]
+    // Hydrate the application on the client
     dioxus::launch(App);
-}
+
+    // Launch axum on the server
+    #[cfg(feature = "server")]
+    {
+        tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(async move {
+                api::launch(App).await;
+            });
+    }}
 
 #[component]
 fn App() -> Element {
@@ -33,16 +37,3 @@ fn App() -> Element {
     }
 }
 
-/// A desktop-specific Router around the shared `Navbar` component
-/// which allows us to use the desktop-specific `Route` enum.
-#[component]
-fn DesktopNavbar() -> Element {
-    rsx! {
-        Navbar {
-            Link { to: Route::Home {}, "Home" }
-            Link { to: Route::Blog { id: 1 }, "Blog" }
-        }
-
-        Outlet::<Route> {}
-    }
-}

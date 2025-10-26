@@ -5,4 +5,4 @@ mod blog;
 pub use blog::Blog;
 
 mod event;
-pub use event::Event;
+pub use event::EventView;

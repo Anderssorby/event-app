@@ -10,7 +10,7 @@ const ECHO_CSS: Asset = asset!("/assets/styling/echo.css");
 pub fn Echo() -> Element {
     let mut response = use_signal(|| String::new());
     let events: Resource<Result<Vec<Event>, ServerFnError>> =
-        use_server_future(api::load_data)?;
+        use_server_future(api::event::list_events)?;
 
     rsx! {
         document::Link { rel: "stylesheet", href: ECHO_CSS }

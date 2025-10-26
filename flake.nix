@@ -35,44 +35,96 @@
         let
           dx = pkgs.dioxus-cli;
           wasm-target = "wasm32-unknown-unknown";
+          ios-targets = [
+            "aarch64-apple-ios"
+            "x86_64-apple-ios"
+          ];
+          ios-toolchains = map (
+            target: fenix.packages.${system}.targets.${target}.latest.toolchain
+          ) ios-targets;
+          android-targets = [
+            "aarch64-linux-android"
+            "armv7-linux-androideabi"
+            "i686-linux-android"
+            "x86_64-linux-android"
+          ];
+          android-toolchains = map (
+            target: fenix.packages.${system}.targets.${target}.latest.toolchain
+          ) android-targets;
           rust =
             with fenix.packages.${system};
-            combine [
-              complete.cargo
-              complete.rustc
-              targets.${wasm-target}.latest.rust-std
-            ];
+            combine (
+              [
+                complete.cargo
+                complete.rustc
+                targets.${wasm-target}.latest.rust-std
+              ]
+              ++ android-toolchains
+            );
           nativeBuildInputs = [
             cargo-binstall
             pkg-config
-            #dx needs 0.7.0-rc.2
+            #dx needs 0.7.0-rc.3
             rust
+            waylandpp.dev
+            pkg-config
           ];
           buildInputs = [ pkgs.openssl ];
-
+          androidComposition = androidenv.composeAndroidPackages {
+            platformVersions = [
+              "34"
+              "35"
+              "latest"
+            ];
+            systemImageTypes = [ "google_apis_playstore" ];
+            abiVersions = [
+              "armeabi-v7a"
+              "arm64-v8a"
+            ];
+            includeNDK = true;
+            includeExtras = [ "extras;google;auto" ];
+          };
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
+          android-emulator = androidenv.emulateApp {
+            name = "emulate-MyAndroidApp";
+            platformVersion = "28";
+            abiVersion = "x86"; # armeabi-v7a, mips, x86_64
+            systemImageType = "google_apis_playstore";
+          };
+          androidsdk = androidenv.androidPkgs.androidsdk;
+          ANDROID_HOME = "${androidsdk}/libexec/android-sdk";
+          ANDROID_NDK_ROOT = "${ANDROID_HOME}/ndk-bundle";
         in
         {
           packages.dx = dx;
           devShells.default = mkShell {
             inherit LD_LIBRARY_PATH nativeBuildInputs buildInputs;
+            NIXPKGS_ACCEPT_ANDROID_SDK_LICENSE = "1";
             shellHook = ''
               export PATH=~/.cargo/bin:$PATH
               echo "Welcome to the development shell for the Event app!"
             '';
           };
           devShells.android = mkShell {
-            inherit LD_LIBRARY_PATH  buildInputs;
+            inherit
+              LD_LIBRARY_PATH
+              buildInputs
+              ANDROID_HOME
+              ANDROID_NDK_ROOT
+              ;
             nativeBuildInputs = nativeBuildInputs ++ [
               android-tools
+              androidsdk
+              zulu24
             ];
+            NIXPKGS_ACCEPT_ANDROID_SDK_LICENSE = "1";
             shellHook = ''
               export PATH=~/.cargo/bin:$PATH
               echo "Welcome to the android development shell for the Event app!"
             '';
           };
           devShells.ios = mkShell {
-            inherit LD_LIBRARY_PATH  buildInputs;
+            inherit LD_LIBRARY_PATH buildInputs;
             nativeBuildInputs = nativeBuildInputs ++ [
               darwin.xcode
             ];

@@ -4,6 +4,19 @@ use time::{macros::format_description, PrimitiveDateTime};
 // const BLOG_CSS: Asset = asset!("/assets/blog.css");
 
 #[component]
+pub fn Event() -> Element {
+    let id = use_signal(|| String::new());
+    rsx! {
+        NewEvent {}
+        if id().is_empty() {
+            ViewEvent { id: id() }
+
+            ChangeEvent { id: id() }
+        }
+    }
+}
+
+#[component]
 pub fn ViewEvent(id: String) -> Element {
     //let get_event = move || async move { api::event::get_event(id.clone()).await };
     //let id_moved = id.clone();
