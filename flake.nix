@@ -40,7 +40,7 @@
             "x86_64-apple-ios"
           ];
           ios-toolchains = map (
-            target: fenix.packages.${system}.targets.${target}.latest.toolchain
+            target: fenix.packages.${system}.targets.${target}.stable.toolchain
           ) ios-targets;
           android-targets = [
             "aarch64-linux-android"
@@ -49,7 +49,7 @@
             "x86_64-linux-android"
           ];
           android-toolchains = map (
-            target: fenix.packages.${system}.targets.${target}.latest.toolchain
+            target: fenix.packages.${system}.targets.${target}.stable.toolchain
           ) android-targets;
           rust =
             with fenix.packages.${system};
@@ -57,14 +57,13 @@
               [
                 complete.cargo
                 complete.rustc
-                targets.${wasm-target}.latest.rust-std
+                targets.${wasm-target}.stable.rust-std
               ]
               ++ android-toolchains
             );
           nativeBuildInputs = [
             cargo-binstall
             pkg-config
-            #dx needs 0.7.0-rc.3
             rust
             waylandpp.dev
             pkg-config
@@ -102,7 +101,7 @@
             NIXPKGS_ACCEPT_ANDROID_SDK_LICENSE = "1";
             shellHook = ''
               export PATH=~/.cargo/bin:$PATH
-              echo "Welcome to the development shell for the Event app!"
+              echo "Welcome to the development shell for", f the Event app!"
             '';
           };
           devShells.android = mkShell {

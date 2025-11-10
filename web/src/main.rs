@@ -18,15 +18,11 @@ fn main() {
     // Launch axum on the server
     #[cfg(feature = "server")]
     {
-        tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(async move {
-                api::launch(App).await;
-            });
+        dioxus::serve(async move || {
+            api::launch(App).await
+        });
     }
 }
-
-
 
 #[component]
 fn App() -> Element {

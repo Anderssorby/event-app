@@ -36,7 +36,9 @@ pub fn ViewEvent(id: String) -> Element {
                         br {}
                         "Event Description: {event.description}"
                     },
-                    Err(err) => rsx! { "Failed to fetch response: {err}" },
+                    Err(err) => rsx! {
+                    "Failed to fetch response: {err}"
+                    },
                 }
             } else {
                 "Loading..."
@@ -61,7 +63,6 @@ pub fn NewEvent() -> Element {
                 form {
                     onsubmit: move |event| async move {
                         event.prevent_default();
-                        // Handle form submission logic here
                         info!("New event form submitted!");
                         info!("Data: {:?}", new_event());
                         if let Ok(event) = api::event::new_event(new_event()).await {
@@ -76,10 +77,8 @@ pub fn NewEvent() -> Element {
                         value: new_event().title,
                         oninput: move |e| {
                             let mut event = new_event();
-
                             event.title = e.value();
                             new_event.set(event);
-
                         },
                     }
                     br {}
@@ -105,10 +104,8 @@ pub fn NewEvent() -> Element {
                         oninput: move |e| {
                             if let Ok(date_time) = time::OffsetDateTime::parse(&e.value(), &format) {
                                 let mut event = new_event();
-
                                 event.date_time = date_time;
                                 new_event.set(event);
-
                             }
                         },
                     }

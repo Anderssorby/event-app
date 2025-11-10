@@ -1,11 +1,10 @@
+use axum::Json;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::response::Response;
-use axum::Json;
-use thiserror::Error;
-use dioxus::prelude::ServerFnError;
 use dioxus::logger::tracing::{Level, debug, error, info, warn};
-
+use dioxus::prelude::ServerFnError;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -32,7 +31,7 @@ impl From<surrealdb::Error> for Error {
     }
 }
 
-impl From<Error> for  ServerFnError {
+impl From<Error> for ServerFnError {
     fn from(error: Error) -> Self {
         error!("{error}");
         ServerFnError::Response("Error in service".to_owned())

@@ -21,7 +21,7 @@ pub fn Navbar() -> Element {
                     // Each menubar item represents an individual items in the menu.
                     NavbarItem {
                         index: 0usize,
-                        to: Route::EventView {  },
+                        to: Route::EventView {},
                         // The value of the item which will be passed to the on_select callback when the item is selected.
                         value: "event",
                         "Event"

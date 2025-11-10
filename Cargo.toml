@@ -9,7 +9,7 @@ features = ["web", "router"]
 
 [workspace.dependencies]
 
-dioxus = { version = "0.7.0-rc.3", features = ["router"] }
+dioxus = { version = "0.7.0", features = ["router"] }
 time = { version = "0.3.44", features = ["std", "serde", "parsing", "macros"] }
 chrono = { version = "0.4.42", features = ["serde"] }
 tracing = "0.1.41"

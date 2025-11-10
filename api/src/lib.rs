@@ -1,6 +1,7 @@
 //! This crate contains all shared fullstack server functions.
 use dioxus::prelude::*;
-
+use dioxus_fullstack::routing::Router;
+use anyhow::anyhow;
 
 #[cfg(feature = "server")]
 pub mod db;
@@ -20,28 +21,12 @@ pub async fn echo(input: String) -> Result<String, ServerFnError> {
 }
 
 #[cfg(feature = "server")]
-pub async fn launch(component: fn() -> Element) {
-    use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+pub async fn launch(component: fn() -> Element) -> Result<Router, anyhow::Error> {
+    let mut router = dioxus::server::router(component);
+    db::connect()
+        .await
+        .map_err(|e| anyhow!("Failed to connect to database: {}", e))?;
+    println!("Connected to database successfully");
 
-    // Get the address the server should run on. If the CLI is running, the CLI proxies fullstack into the main address
-    // and we use the generated address the CLI gives us
-    let ip =
-        dioxus::cli_config::server_ip().unwrap_or_else(|| IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
-    let port = dioxus::cli_config::server_port().unwrap_or(8080);
-    let address = SocketAddr::new(ip, port);
-    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-    let config = ServeConfig::new();
-    let router = axum::Router::new()
-        // serve_dioxus_application adds routes to server side render the application, serve static assets, and register server functions
-        .serve_dioxus_application(config, component)
-        .into_make_service();
-    match db::connect().await {
-        Ok(_) => {
-            println!("Connected to database successfully");
-        }
-        Err(e) => {
-            eprintln!("Failed to connect to database: {}", e);
-        }
-    }
-    axum::serve(listener, router).await.unwrap();
+    return Ok(router);
 }

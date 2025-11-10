@@ -19,6 +19,5 @@ pub fn Hero() -> Element {
                 ToastButton { button_text: "Open toast".to_string() }
             }
         }
-
     }
 }
