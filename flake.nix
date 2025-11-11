@@ -63,8 +63,7 @@
             );
           nativeBuildInputs = [
             cargo-binstall
-            pkg-config
-            rust
+            #rust
             waylandpp.dev
             pkg-config
           ];
